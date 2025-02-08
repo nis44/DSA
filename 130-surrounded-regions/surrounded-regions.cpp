@@ -1,61 +1,50 @@
 class Solution {
-private:
-
-    void dfs(int row, int col, vector<vector<int>> &vis, vector<vector<char>> &board, int delrow[], int delcol[]) {
-        vis[row][col] = 1;
-        int m = board.size();
-        int n = board[0].size();
-
-        for(int i = 0; i < 4; i++) {
-            int nrow = row + delrow[i];
-            int ncol = col + delcol[i];
-
-            if(nrow >= 0 && nrow < m && ncol >= 0 && ncol < n && vis[nrow][ncol] == 0 && board[nrow][ncol] == 'O') {
-                dfs(nrow, ncol, vis, board, delrow, delcol);
+public:
+    vector<pair<int,int>>directions={{1,0},{-1,0},{0,-1},{0,1}};
+    void dfs(int row,int col,vector<vector<char>>& board,vector<vector<int>>&visited){
+        int n=board.size();
+        int m=board[0].size();       
+        visited[row][col]=1;
+        for(auto [dr,dc]:directions){
+            int nr=row+dr;
+            int nc=col+dc;
+            if(nr>=0 && nc>=0 && nr<n && nc<m && board[nr][nc]=='O' && !visited[nr][nc]){
+                dfs(nr,nc,board,visited);
             }
         }
     }
-
-
-public:
     void solve(vector<vector<char>>& board) {
-        int m = board.size();
-        int n = board[0].size();
-        vector<vector<int>> vis(m, vector<int> (n, 0));
-
-        int delrow[] = {-1, 0, 1, 0};
-        int delcol[] = {0, 1, 0, -1};
-
-
-        for(int i = 0; i < n; i++) {
-            if(board[0][i] == 'O' && !vis[0][i]) {
-                dfs(0, i, vis, board, delrow, delcol);
-            } 
-
-            if(board[m-1][i] == 'O' && !vis[m-1][i]) {
-                dfs(m-1, i, vis, board, delrow, delcol);
+        int n=board.size();
+        int m=board[0].size();
+        vector<vector<int>>visited(n,vector<int>(m,0));
+        //Marking borders
+        for(int i=0;i<n;i++){
+            //first column
+            if(board[i][0]=='O' && !visited[i][0]){
+                dfs(i,0,board,visited);
+            }
+            //Last column
+            if(board[i][m-1]=='O' && !visited[i][m-1]){
+                dfs(i,m-1,board,visited);
             }
         }
-
-        for(int i = 0; i < m; i++) {
-            if(board[i][0] == 'O' && !vis[i][0]) {
-                dfs(i, 0, vis, board, delrow, delcol);
-            } 
-
-            if(board[i][n-1] == 'O' && !vis[i][n-1]) {
-                dfs(i, n-1, vis, board, delrow, delcol);
+        for(int i=0;i<m;i++){
+            //first row
+            if(board[0][i]=='O' && !visited[0][i]){
+                dfs(0,i,board,visited);
+            }
+            //Last row
+            if(board[n-1][i]=='O' && !visited[n-1][i]){
+                dfs(n-1,i,board,visited);
             }
         }
-
-        for(int i = 0; i < m; i++) {
-            for(int j = 0; j < n; j++) {
-                if(!vis[i][j] && board[i][j] == 'O') board[i][j] = 'X';
+        //check if O with not connected with borders ans mark as x
+        for(int i=0;i<n;i++){
+            for(int j=0;j<m;j++){
+                if(board[i][j]=='O' && !visited[i][j]){
+                    board[i][j]='X';
+                }
             }
         }
-
-        
-
-
-
     }
 };
