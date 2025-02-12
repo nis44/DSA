@@ -1,7 +1,7 @@
 class Solution {
 public:
     int maximumSum(vector<int>& nums) {
-        unordered_map<int, vector<int>> mpp;
+        unordered_map<int, pair<int, int>> mpp;
 
         int maxi = INT_MIN;
 
@@ -11,18 +11,22 @@ public:
             int sumDigi = 0;
             while (temp) sumDigi += temp % 10, temp /= 10;
 
-            mpp[sumDigi].push_back(nums[i]);
+            auto&p = mpp[sumDigi];
+            if (nums[i] > p.first) {
+                p.second = p.first;
+                p.first = nums[i];
+            } else if (nums[i] > p.second) {
+                p.second = nums[i];
+            }
 
 
         }
 
         for(auto it: mpp) {
             
-            vector<int> arr = it.second;
-            if (arr.size() < 2) continue;
-            sort(arr.begin(), arr.end());
-            int n = arr.size();
-            maxi = max(arr[n-1] + arr[n-2], maxi);
+            if (it.second.second > 0) { 
+                maxi = max(maxi, it.second.first + it.second.second);
+            }
         }
         return (maxi == INT_MIN) ? -1 : maxi;
     }
