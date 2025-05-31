@@ -1,29 +1,27 @@
 class Solution {
 public:
-    vector<vector<int>> dp; // Memoization table
-
-    int burst(vector<int>& nums, int l, int r) {
-        if (l > r) return 0; // No balloons left in this range
-
-        if (dp[l][r] != -1) return dp[l][r]; // Return already computed result
-
-        int maxCoins = 0;
-        for (int i = l; i <= r; i++) {
-            int coins = nums[l-1] * nums[i] * nums[r+1] 
-                      + burst(nums, l, i-1) 
-                      + burst(nums, i+1, r);
-            maxCoins = max(maxCoins, coins);
-        }
-        return dp[l][r] = maxCoins;
-    }
-
     int maxCoins(vector<int>& nums) {
         int n = nums.size();
-        nums.insert(nums.begin(), 1); // Add virtual balloon at start
-        nums.push_back(1); // Add virtual balloon at end
 
-        dp.assign(n+2, vector<int>(n+2, -1)); // Initialize DP table with -1
+        nums.push_back(1);
+        nums.insert(nums.begin(), 1);
 
-        return burst(nums, 1, n);
+        vector<vector<int>> dp(n + 2, vector<int> (n + 2, 0));
+
+        for(int i = n; i >= 1; i--) {
+            for(int j = i; j <= n; j++) {
+                if(i > j) continue;
+                int maxi = INT_MIN;
+
+                for(int ind = i; ind <= j; ind++) {
+                    int cost = nums[i-1] * nums[ind] * nums[j + 1] + dp[i][ind-1] + dp[ind + 1][j];
+                    maxi = max(cost, maxi);
+                }
+
+                dp[i][j] = maxi;
+            }
+        }
+
+        return dp[1][n];
     }
 };
