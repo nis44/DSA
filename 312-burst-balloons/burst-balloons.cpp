@@ -10,7 +10,7 @@ public:
 
         for(int i = n; i >= 1; i--) {
             for(int j = i; j <= n; j++) {
-                if(i > j) continue;
+                // if(i > j) continue;
                 int maxi = INT_MIN;
 
                 for(int ind = i; ind <= j; ind++) {
