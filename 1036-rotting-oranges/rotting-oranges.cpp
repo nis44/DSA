@@ -1,53 +1,50 @@
 class Solution {
 public:
     int orangesRotting(vector<vector<int>>& grid) {
-        int n = grid.size();
-        int m = grid[0].size();
-        
-        queue<pair<pair<int, int>, int>> q;
-        vector<vector<int>> vis(n, vector<int>(m, 0)); // Initialize `vis` correctly
+        int m = grid.size();
+        int n = grid[0].size();
 
-        // Step 1: Push all initially rotten oranges into the queue
-        for(int i = 0; i < n; i++) {
-            for(int j = 0; j < m; j++) {
-                if(grid[i][j] == 2) {
-                    q.push({{i, j}, 0});
-                    vis[i][j] = 2; // Mark as visited rotten
-                }
+        queue<pair<pair<int, int>, int>> q;
+        vector<vector<int>> vis(m, vector<int> (n, 0));
+
+        for(int i = 0; i < m; i++) {
+            for(int j = 0; j < n; j++) {
+                if(grid[i][j] == 2) {q.push({{i, j}, 0});vis[i][j] = 2;}
+                
             }
         }
 
         int tm = 0;
-        int drow[] = {-1, 0, 1, 0};
-        int dcol[] = {0, 1, 0, -1};
-
-        // Step 2: BFS traversal to rot adjacent fresh oranges
         while(!q.empty()) {
             int r = q.front().first.first;
             int c = q.front().first.second;
+
             int t = q.front().second;
+
             q.pop();
+
+            vector<int> delrow = {-1, 0, 1, 0}, delcol = {0, 1, 0, -1};
             tm = max(tm, t);
 
             for(int i = 0; i < 4; i++) {
-                int nrow = r + drow[i];
-                int ncol = c + dcol[i];
+                int nrow = delrow[i] + r;
+                int ncol = delcol[i] + c;
 
-                if(nrow >= 0 && nrow < n && ncol >= 0 && ncol < m && vis[nrow][ncol] == 0 && grid[nrow][ncol] == 1) {
+                if(nrow >= 0 && nrow < m && ncol >= 0 && ncol < n && vis[nrow][ncol] != 2 && grid[nrow][ncol] == 1) {
                     q.push({{nrow, ncol}, t + 1});
-                    vis[nrow][ncol] = 2; // Mark as visited (rotten)
-                    grid[nrow][ncol] = 2; // Mark as rotten in the grid itself
+                    vis[nrow][ncol] = 2;
+                    
                 }
             }
         }
 
-        // Step 3: Check if any fresh orange is left
-        for(int i = 0; i < n; i++) {
-            for(int j = 0; j < m; j++) {
-                if(grid[i][j] == 1) return -1; // If fresh orange is found, return -1
+
+        for(int i = 0; i < m; i++) {
+            for(int j = 0; j < n; j++) {
+                if(grid[i][j] == 1 && vis[i][j] != 2) return -1; 
             }
         }
-
         return tm;
+
     }
 };
