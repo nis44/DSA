@@ -18,23 +18,28 @@ public:
         pq.push({0, k});
 
         while(!pq.empty()) {
-            int time = pq.top().first;
+            int currtime = pq.top().first;
             int node = pq.top().second;
+
             pq.pop();
 
             for(auto it: adj[node]) {
                 int adnode = it.first;
-                int wt = it.second;
-
-                if(dist[node] + wt < dist[adnode]) {
-                    dist[adnode] = dist[node] + wt;
-                    pq.push({dist[node] + wt, adnode});
+                int time = it.second;
+                
+                if(dist[adnode] > currtime + time) {
+                    dist[adnode] = currtime + time;
+                    pq.push({dist[adnode], adnode});
                 }
             }
         }
+        int maxi = INT_MIN;
 
-        int maxTime = *max_element(dist.begin() + 1, dist.end());
-        return (maxTime == INT_MAX) ? -1 : maxTime;
+        for(int i = 1; i <= n; i++) {
+            maxi = max(maxi, dist[i]);
+        }
 
+        if(maxi == INT_MAX) return -1;
+        return maxi;
     }
 };
