@@ -3,33 +3,37 @@ public:
     int shortestPathBinaryMatrix(vector<vector<int>>& grid) {
         int n = grid.size();
         if(grid[0][0] == 1 || grid[n-1][n-1] == 1) return -1;
-
+        vector<vector<int>> dist(n, vector<int> (n, INT_MAX));
+        dist[0][0] = 1;
         vector<int> delrow = {-1, -1, -1, 0, 1, 1, 1, 0};
         vector<int> delcol = {-1, 0, 1, 1, 1, 0, -1, -1};
 
-        queue<pair<int, int>> q;
-        q.push({0, 0});
-        grid[0][0] = 1; // using grid itself as visited, mark with step count
-        int steps = 1;
+        queue<pair<int, pair<int, int>>> q;
+        q.push({1, {0, 0}});
 
         while(!q.empty()) {
-            int sz = q.size();
-            while(sz--) {
-                auto [r, c] = q.front();
-                q.pop();
-                if(r == n-1 && c == n-1) return steps;
+            int currdist = q.front().first;
 
-                for(int i = 0; i < 8; i++) {
-                    int nr = r + delrow[i];
-                    int nc = c + delcol[i];
-                    if(nr >= 0 && nr < n && nc >= 0 && nc < n && grid[nr][nc] == 0) {
-                        q.push({nr, nc});
-                        grid[nr][nc] = 1; // mark as visited
-                    }
+            int row = q.front().second.first;
+
+            int col = q.front().second.second;
+
+            q.pop();
+
+            if(row == n-1 && col == n-1) return currdist;
+
+            for(int i = 0; i < 8; i++) {
+                int nrow = delrow[i] + row;
+                int ncol = delcol[i] + col;
+
+                if(nrow >= 0 && nrow < n && ncol >= 0 && ncol < n && grid[nrow][ncol] == 0 && 
+                dist[nrow][ncol] > currdist + 1) {
+                   dist[nrow][ncol] = currdist + 1; 
+                   q.push({dist[nrow][ncol], {nrow, ncol}});
                 }
             }
-            steps++;
         }
+
         return -1;
     }
 };
