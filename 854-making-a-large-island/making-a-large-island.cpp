@@ -1,70 +1,102 @@
-class Solution {
-    int d[5] = {1, 0, -1, 0, 1}; // Direction vectors
-    int n;
-
-    // Depth-First Search to mark island and calculate its size
-    int dfs(int row, int col, int id, vector<vector<int>>& grid) {
-        grid[row][col] = id; // Mark cell with island ID
-        int cnt = 1; // Initialize size of the island
-
-        for (int i = 0; i < 4; i++) { // Explore all 4 directions
-            int nr = row + d[i];
-            int nc = col + d[i + 1];
-
-            if (nr >= 0 && nc >= 0 && nr < n && nc < n && grid[nr][nc] == 1)
-                cnt += dfs(nr, nc, id, grid);
-        }
-
-        return cnt; // Return the total size of the island
-    }
+class DisjointSet {
+    
 
 public:
-    int largestIsland(vector<vector<int>>& grid) {
-        n = grid.size(); 
-        vector<int> key; // Store sizes of all islands
-        int id = 2; // Island IDs start from 2
-
-        // Identify all islands and calculate their sizes
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                if (grid[i][j] == 1)
-                    key.push_back(dfs(i, j, id++, grid));
-            }
+vector<int> rank, parent, size;
+    DisjointSet(int n) {
+        rank.resize(n + 1, 0);
+        size.resize(n + 1, 1);
+        parent.resize(n + 1);
+        for (int i = 0; i <= n; i++) {
+            parent[i] = i;
         }
+    }
 
-        if (key.empty()) return 1; // Grid contains no land
+    int findUPar(int node) {
+        if (node == parent[node])
+            return node;
+        return parent[node] = findUPar(parent[node]);
+    }
 
-        int ans = 1;
+    void unionBySize(int u, int v) {
+        int ulp_u = findUPar(u);
+        int ulp_v = findUPar(v);
 
-        // Check all water cells and calculate potential island size
+        if (ulp_u == ulp_v)
+            return;
+
+        if (size[ulp_u] < size[ulp_v]) {
+            parent[ulp_u] = ulp_v;
+            size[ulp_v] += size[ulp_u];
+        } else {
+            parent[ulp_v] = ulp_u;
+            size[ulp_u] += size[ulp_v];
+        }
+    }
+};
+
+class Solution {
+public:
+    int largestIsland(vector<vector<int>>& grid) {
+        int n = grid.size();
+        DisjointSet ds(n * n);
+
+        vector<int> delrow = {-1, 0, 1, 0}, delcol = {0, 1, 0, -1};
+
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                if (grid[i][j] == 0) {
-                    int cnt = 1;
+                if (grid[i][j] == 0)
+                    continue;
 
-                    // Add sizes of neighboring islands
-                    for (int k = 0; k < 4; k++) {
-                        int nr = i + d[k];
-                        int nc = j + d[k + 1];
+                for (int k = 0; k < 4; k++) {
+                    int nrow = delrow[k] + i;
+                    int ncol = delcol[k] + j;
 
-                        if (nr >= 0 && nc >= 0 && nr < n && nc < n && grid[nr][nc] != 0 && key[grid[nr][nc] - 2] > 0)
-                            cnt += key[grid[nr][nc] - 2], key[grid[nr][nc] - 2] *= -1; // Mark island as visited
+                    if (nrow >= 0 && ncol >= 0 && nrow < n && ncol < n &&
+                        grid[nrow][ncol] == 1) {
+                        int node = i * n + j;
+                        int adnode = nrow * n + ncol;
+                        ds.unionBySize(node, adnode);
                     }
-
-                    // Reset the sizes of marked islands
-                    for (int k = 0; k < 4; k++) {
-                        int nr = i + d[k];
-                        int nc = j + d[k + 1];
-
-                        if (nr >= 0 && nc >= 0 && nr < n && nc < n && grid[nr][nc] != 0 && key[grid[nr][nc] - 2] < 0)
-                            key[grid[nr][nc] - 2] *= -1; // Unmark island
-                    }
-
-                    ans = max(ans, cnt); // Update the largest possible island size
                 }
             }
         }
 
-        return ans == 1 ? n * n : ans; // Return result
+        int ans = 0;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid[i][j] == 1)
+                    continue;
+                unordered_set<int> stt;
+
+                for (int k = 0; k < 4; k++) {
+                    int nrow = delrow[k] + i;
+                    int ncol = delcol[k] + j;
+
+                    if (nrow >= 0 && ncol >= 0 && nrow < n && ncol < n &&
+                        grid[nrow][ncol] == 1) {
+                        int node = i * n + j;
+                        int adnode = nrow * n + ncol;
+                        int upar = ds.findUPar(adnode);
+                        stt.insert(upar);
+                    }
+                }
+
+                int sum = 1;
+
+                for (auto it : stt) {
+                    sum += ds.size[it];
+                }
+
+                ans = max(ans, sum);
+            }
+        }
+
+        for(int i = 0; i < n * n; i++) {
+            ans = max(ans, ds.size[ds.findUPar(i)]);
+        }
+
+        return ans;
     }
 };
