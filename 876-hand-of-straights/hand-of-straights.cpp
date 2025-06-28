@@ -8,7 +8,7 @@ public:
 
         int n = hand.size();
 
-        map<int, int> mpp;
+        unordered_map<int, int> mpp;
 
         for (auto it : hand) {
             mpp[it]++;
