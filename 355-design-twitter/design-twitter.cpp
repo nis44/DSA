@@ -9,7 +9,7 @@ public:
     }
 
     void postTweet(int userId, int tweetId) {
-        tweets[userId].emplace_back(timestamp++, tweetId);
+        tweets[userId].push_back({timestamp++, tweetId});
     }
 
     vector<int> getNewsFeed(int userId) {
